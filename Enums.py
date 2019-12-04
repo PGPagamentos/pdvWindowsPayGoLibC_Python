@@ -262,3 +262,17 @@ class E_PWUserDataMessages(enum.Enum):
   DIGITE_OS_4_ULTIMOS_DIGITOS      = 11
   DIGITE_CODIGO_DE_SEGURANCA       = 12
 
+
+
+
+#for item in (E_PWUserDataMessages):
+# print(item)
+
+
+def pszGetInfoDescription(cod):
+    
+    for k in (E_PWINFO):
+      if(cod == k.value):
+        return k.name
+
+
