@@ -110,6 +110,7 @@ class Toplevel1:
         self.Instala.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1Instala(e))
 
         #self.LogDll = tk.Listbox(top)
+        
         self.LogDll = ScrolledText(top, height=5); 
         self.LogDll.grid(row=1, column=1)
         self.LogDll.place(relx=0.52, rely=0.073, relheight=0.696, relwidth=0.43)

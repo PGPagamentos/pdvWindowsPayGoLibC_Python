@@ -60,7 +60,8 @@ def ButtonMouse1btnExecutar(p1):
     w.Loga("get combobox selected" + w.cmbOper.get())
     selecionado = w.cmbOper.get()
     code_tran = w.dicionarioOper[selecionado]
-    ret = PGWlib.executeTransaction(code_tran)
+    #ret = PGWlib.executeTransaction(code_tran)
+    ret=PGWlib.execTrans(code_tran)
     PGWlib.LogaTransactionResult()
     PGWlib.confirmUndoTransactionGen(ret) 
     PGWlib.LogaTransactionResult()

@@ -134,4 +134,20 @@ class PGWebLibrary:
       ret = self.PW_iPPGetCardObj(c_uint16(uiIndex))
       return ret
 
+
+
+  def PW_iConfirmation(self,ulResult,pszReqNum, pszLocRef,pszExtRef,pszVirtMerch,pszAuthSyst):
+      self.PW_iConfirmationObj          = self.PGWebLib_dll.PW_iConfirmation
+      self.PW_iConfirmationObj.restype  = c_short
+      self.PW_iConfirmationObj.argtypes = [c_uint32,c_char_p,c_char_p,c_char_p,c_char_p,c_char_p]
+
+      pszReqNumAux    = pszReqNum.encode('utf-8')
+      pszLocRefAux    = pszLocRef.encode('utf-8')
+      pszExtRefAux    = pszExtRef.encode('utf-8')
+      pszVirtMerchAux = pszVirtMerch.encode('utf-8')
+      pszAuthSystAux  = pszAuthSyst.encode('utf-8')
+      
+      return self.PW_iConfirmationObj(c_uint32(ulResult),c_char_p(pszReqNumAux),c_char_p(pszLocRefAux),c_char_p(pszExtRefAux),
+                                  c_char_p(pszVirtMerchAux),c_char_p(pszAuthSystAux))
+
 # fim de PGWebLibrary:

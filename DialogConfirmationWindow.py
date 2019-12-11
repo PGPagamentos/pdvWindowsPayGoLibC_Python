@@ -18,7 +18,7 @@ class DialogConfirmationWindow:
         ###############
         self.cb = ttk.Combobox(top,width = 60, values = itemsforcombobox)
 
-        self.cb.current(1)
+        #self.cb.current(1)
         
         self.cb.pack()
         self.cb.bind('<<ComboboxSelected>>', self.CurSelect)
@@ -61,7 +61,7 @@ class DialogConfirmationWindow:
         print("New Element Selected")
         print(self.cb.get())
         print(self.cb.current())
-        self.valor = self.cb.current()
+        self.valor = self.cb.get()
 
 
     

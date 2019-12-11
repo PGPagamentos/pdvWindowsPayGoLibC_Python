@@ -869,6 +869,92 @@ def TesteVenda():
   # fim de TesteVenda
 
 
+#####
+def execTrans(cod_trans):
+
+  listaParametros = getTransactionResult()
+  ret = startTransaction(cod_trans, listaParametros)
+
+  if (ret != 0):
+  
+    sError          = ret
+    sResultMessage  = getResultMessage();
+
+    # verifica se deu erro de transacao anterior pendente
+    if (ret == E_PWRET.PWRET_FROMHOSTPENDTRN.value):
+    
+      # confirma a transacao que estava pendente
+      print("----------------")
+      #print("Erro :" + sError + ": result message :" + sResultMessage + " ao executar a transação: " + operation.ToString());
+
+      transactionStatus = E_PWCNF.PWCNF_REV_AUTO_ABORT.value;
+      ret = confirmPendTransaction(transactionStatus, getTransactionResult())
+
+      print("----------------")
+
+      #sTranpend = "Erro :" + sError + "-> Confirmando transacao pendente" ;
+
+      #WriteLog (sTranpend)
+
+      #ShowMessageBoxInfo(this, sTranpend);
+
+
+      LogaTransactionResult()
+      return ret
+
+    # fim do if
+    else:
+    
+      print("----------------")
+      sErrorMessage = "Erro :" + sError + " : result message : " + sResultMessage + " ao executar a transação: " + cod_trans
+
+      print(sErrorMessage)
+
+      #ShowMessageBoxError(this, sErrorMessage);
+      LogaTransactionResult()
+      
+      return ret;
+    #fim do else
+  
+
+  print("----------------")
+  #OKMessage = "Transacao : " + cod_trans + " OK"
+  #print (sOKMessage + "\n")
+
+  #ShowMessageBoxOK(this, sOKMessage);
+  #LogaTransactionResult();
+
+  return ret;
+
+
+####
+
+
+
+def startTransaction(operation, paramList):
+            
+  ret = E_PWRET.PWRET_NODATA.value;
+  
+  ret = myPGWebLib.PW_iNewTransac(operation);
+
+  
+  if (ret != E_PWRET.PWRET_OK.value):
+     return ret
+
+  #foreach (PW_Parameter item in paramList)
+  #{
+  #    ret = Interop.PW_iAddParam(item.parameterCode, item.parameterValue);
+  #    Debug.Print(string.Format("CALLED iAddParam COM ÍNDICE {0}, VALOR {1} E RETORNO {2}", item.parameterName, item.parameterValue, ret.ToString()));
+  #    if (ret != 0) return ret;
+  #}
+
+  ret = executeTransaction(operation);
+
+  
+  return ret;
+# fim de StartTransaction
+
+
 
 
 def executeTransaction(code_tran):
@@ -888,7 +974,7 @@ def executeTransaction(code_tran):
    Ret = E_PWRET.PWRET_NODATA.value
 
    # Inicializa a transação de instalação
-   iRet = myPGWebLib.PW_iNewTransac(code_tran)
+   #iRet = myPGWebLib.PW_iNewTransac(code_tran)
    
    Nometran = ''
    dicionarioOper = dict()
@@ -970,7 +1056,7 @@ def confirmUndoTransactionGen(RetTransaction):
           print(cw.valor)
           code_aut = dicionarioConf[cw.valor]
 
-          ret = confirmUndoTransaction(transactionStatus, listTransactionResult)
+          ret = confirmUndoTransaction(code_aut, listTransactionResult)
       #fim else
   #fim for
   return ret
@@ -982,37 +1068,33 @@ def confirmUndoTransaction(transactionStatus, transactionResponse):
 
   ret = 99
 
-  pszReqNum = ""
-  pszLocRef = ""
-  pszExtRef = ""
-  pszVirtMerch = ""
-  pszAuthSyst = ""
+  pszReqNum = ''
+  pszLocRef = ''
+  pszExtRef = ''
+  pszVirtMerch = ''
+  pszAuthSyst = ''
+
+
+
 
   for item in transactionResponse:
 
       if(item.parameterCode == E_PWINFO.PWINFO_REQNUM.value):
           pszReqNum = item.parameterValue
-          break
-
+      
       elif(item.parameterCode == E_PWINFO.PWINFO_AUTLOCREF.value):
           pszLocRef = item.parameterValue
-          break
-
+      
       elif(item.parameterCode == E_PWINFO.PWINFO_AUTEXTREF.value):
           pszExtRef = item.parameterValue
-          break
-
+      
       elif(item.parameterCode == E_PWINFO.PWINFO_VIRTMERCH.value):
           pszVirtMerch = item.parameterValue
-          break
-
+      
       elif(item.parameterCode == E_PWINFO.PWINFO_AUTHSYST.value):
           pszAuthSyst = item.parameterValue
-          break
-
-      else:
-          break
-
+      
+      
   #fim do for
 
   ret = myPGWebLib.PW_iConfirmation(transactionStatus, pszReqNum, pszLocRef, pszLocRef, pszVirtMerch, pszAuthSyst);
@@ -1029,30 +1111,24 @@ def confirmPendTransaction(transactionStatus,transactionResponse):
     pszExtRef    = ''
     pszVirtMerch = ''
     pszAuthSyst  = ''
+    
 
     for item in transactionResponse:
         if(item.parameterCode == E_PWINFO.PWINFO_PNDREQNUM.value):
             pszReqNum = item.parameterValue
-            break
-
+      
         elif(item.parameterCode == E_PWINFO.PWINFO_PNDAUTLOCREF.value):
             pszLocRef = item.parameterValue
-            break
-
+      
         elif(item.parameterCode == E_PWINFO.PWINFO_PNDAUTEXTREF.value):
             pszExtRef = item.parameterValue
-            break
-
+      
         elif(item.parameterCode == E_PWINFO.PWINFO_PNDVIRTMERCH.value):
             pszVirtMerch = item.parameterValue
-            break
-
+      
         elif(item.parameterCode == E_PWINFO.PWINFO_PNDAUTHSYST.value):
             pszAuthSyst = item.parameterValue
-            break
-
-        else:
-            break
+      
           
     #fim do for
 
@@ -1122,8 +1198,25 @@ def LogaTransactionResult():
         if (iRet == 0): 
              mensagem = item.name + " = " +  szAux.value.decode()
              print(mensagem)
-             MainWindow.Loga(mensagem) 
+             MainWindow.Loga(mensagem)
 
+
+# fim de  LogaTransactionResult
+
+#retorna o parametro PWINFO_RESULTMSG
+def getResultMessage():
+
+   
+  value = create_string_buffer(100000)
+  
+  
+  getInfoRet = myPGWebLib.PW_iGetResult( E_PWINFO.PWINFO_RESULTMSG.value, value, len(value))
+  
+  ret =  value.value.decode();               
+
+
+  return ret;
+#fim de getResultMessage
 
 
 
