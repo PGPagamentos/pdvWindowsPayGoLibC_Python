@@ -57,15 +57,8 @@ class PGWebLibrary:
   def PW_iExecTransac(self,vstParam, iNumParam):
         self.PW_iExecTransacObj          = self.PGWebLib_dll.PW_iExecTransac
         self.PW_iExecTransacObj.restype  = c_short
-
-        
         self.PW_iExecTransacObj.argtypes = [POINTER((PW_GetData *11)),POINTER(c_int)]
-        
-        
-        
         ret = self.PW_iExecTransacObj(byref(vstParam),byref(c_int(iNumParam)))
-       
-
         return ret
   
 
@@ -99,11 +92,46 @@ class PGWebLibrary:
       ret = self.PW_iPPEventLoopObj(pszDisplay,c_uint32(ulDisplaySize))
       return ret
 
+  def PW_iPPGoOnChip(self, uiIndex):
+      self.PW_iPPGoOnChipObj          = self.PGWebLib_dll.PW_iPPGoOnChip
+      self.PW_iPPGoOnChipObj.restype  = c_short
+      self.PW_iPPGoOnChipObj.argtypes = [c_uint16]
+      ret = self.PW_iPPGoOnChipObj(c_uint16(uiIndex))
+      return ret
+
+  def PW_iPPFinishChip(self, uiIndex):
+      self.PW_iPPFinishChipObj          = self.PGWebLib_dll.PW_iPPFinishChip
+      self.PW_iPPFinishChipObj.restype  = c_short
+      self.PW_iPPFinishChipObj.argtypes = [c_uint16]
+      ret = self.PW_iPPFinishChipObj(c_uint16(uiIndex))
+      return ret
   
+  def PW_iPPConfirmData(self, uiIndex):
+      self.PW_iPPConfirmDataObj          = self.PGWebLib_dll.PW_iPPConfirmData
+      self.PW_iPPConfirmDataObj.restype  = c_short
+      self.PW_iPPConfirmDataObj.argtypes = [c_uint16]
+      ret = self.PW_iPPConfirmDataObj(c_uint16(uiIndex))
+      return ret
 
+  def PW_iPPGetPIN(self, uiIndex):
+      self.PW_iPPGetPINObj          = self.PGWebLib_dll.PW_iPPGetPIN
+      self.PW_iPPGetPINObj.restype  = c_short
+      self.PW_iPPGetPINObj.argtypes = [c_uint16]
+      ret = self.PW_iPPGetPINObj(c_uint16(uiIndex))
+      return ret
 
-
-
-
+  def PW_iPPGetData(self, uiIndex):
+      self.PW_iPPGetDataObj          = self.PGWebLib_dll.PW_iPPGetData
+      self.PW_iPPGetDataObj.restype  = c_short
+      self.PW_iPPGetDataObj.argtypes = [c_uint16]
+      ret = self.PW_iPPGetDataObj(c_uint16(uiIndex))
+      return ret
+  
+  def PW_iPPGetCard(self, uiIndex):
+      self.PW_iPPGetCardObj          = self.PGWebLib_dll.PW_iPPGetCard
+      self.PW_iPPGetCardObj.restype  = c_short
+      self.PW_iPPGetCardObj.argtypes = [c_uint16]
+      ret = self.PW_iPPGetCardObj(c_uint16(uiIndex))
+      return ret
 
 # fim de PGWebLibrary:

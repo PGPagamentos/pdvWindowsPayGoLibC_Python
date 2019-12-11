@@ -3,17 +3,21 @@ from  CustomObjects import *
 import os
 from  time import *
 #import ctypes.
-from ctypes import *
-from Interops import *
+from  ctypes import *
+from  Interops import *
+from  DialogTypedData import *
+from  DialogMenuClass  import * 
+from  DialogMessage    import *
+from time import *
+from DialogConfirmationWindow import *
 
 myPGWebLib = None
-
 
 
 # cria objeto de acesso a DLL
 myPGWebLib = PGWebLibrary()
 
-
+MainWindow  = ""
 
 
 
@@ -178,6 +182,46 @@ def InputCR(pszSourceStr):
         return mytext
 
 
+
+def loopPP(timeout = 0):
+
+    import pdvWindowsPayGoLibC_Python_support
+    MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+    MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+
+
+    
+    ret = 99;
+    counter = 0;
+    
+    while True:
+    
+        ret = E_PWRET.PWRET_TIMEOUT.value;
+        if ((counter > timeout) and (timeout > 0)): 
+           return ret;
+
+        counter = counter + 1
+        sleep(0.5)
+        
+        displayMessage = create_string_buffer(1000)
+        
+        
+        ret = myPGWebLib.PW_iPPEventLoop(displayMessage, 1000)
+
+        #if (ret == E_PWRET.PWRET_DISPLAY.value):
+        #    fdm = DialogMessage(MainWindowRoot,str(displayMessage))
+        #    MainWindowRoot.wait_window(fdm.top)
+
+        if ((ret != E_PWRET.PWRET_NOTHING.value) and  (ret != E_PWRET.PWRET_DISPLAY.value)):
+            break
+   
+    
+    return ret;
+
+
+
+
+
 def iExecGetDataInstall(vstGetData,iNumParam):
       i = 0
       j = 0 
@@ -190,6 +234,9 @@ def iExecGetDataInstall(vstGetData,iNumParam):
       
       ulEvent=0
 
+      import pdvWindowsPayGoLibC_Python_support
+      MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+      
       # Caso exista uma mensagem a ser exibida antes da captura do próximo dado, a exibe
       if(vstGetData[0].szMsgPrevia != b''):
         #InputCR(vstGetData[0].szMsgPrevia)
@@ -244,18 +291,20 @@ def iExecGetDataInstall(vstGetData,iNumParam):
               
 
               
-            for j in  range(vstGetData[i].bNumOpcoesMenu-1): 
-                print("\n%d - %s", j, vstGetData[i].vszTextoMenu[j])
+            for j in  range(vstGetData[i].bNumOpcoesMenu): 
+                print("\n%d - %s", vstGetData[i].vszValorMenu[j].value, vstGetData[i].vszTextoMenu[j].value)
 
             
             iKey = input("\n\nSELECIONE A OPCAO:")
 
             iKey = int(iKey)
 
-            print("\n", iKey)
-              
+            iKey = iKey - 1
 
-            iRet = myPGWebLib.pPW_iAddParam(vstGetData[i].wIdentificador, vstGetData[i].vszValorMenu[iKey])
+            print("\n", iKey)
+            
+            param = vstGetData[i].vszValorMenu[iKey].value.decode()
+            iRet = myPGWebLib.PW_iAddParam(vstGetData[i].wIdentificador, param)
             
             if(iRet != 0):
               print("\nERRO AO ADICIONAR PARAMETRO...")
@@ -267,6 +316,7 @@ def iExecGetDataInstall(vstGetData,iNumParam):
         # fim de E_PWDAT.PWDAT_TYPED
 
 
+        '''
         elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_PPREMCRD.value):
             print("\nTipo de dados = PWDAT_PPREMCRD")
             #iRet = myPGWebLib.(i)
@@ -317,9 +367,188 @@ def iExecGetDataInstall(vstGetData,iNumParam):
                 break
             # fim do while
         # fim de E_PWDAT.PWDAT_PPENCPIN
+        '''
+        
+
               
       return E_PWRET.PWRET_OK.value
   # fim de iExecGetDataInstall
+
+
+
+def iExecGetDataInstallJanelas(vstGetData,iNumParam):
+      i = 0
+      j = 0 
+      iKey = 0 
+      ret = 0
+      index = 0
+      
+      szAux       = (c_char * 1024)()
+      szDspMsg    = (c_char * 128)()
+      szMsgPinPad = (c_char * 34)()
+      
+      ulEvent=0
+
+      import pdvWindowsPayGoLibC_Python_support
+      MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+      MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+
+      # Caso exista uma mensagem a ser exibida antes da captura do próximo dado, a exibe
+      if(vstGetData[0].szMsgPrevia != b''):
+        #InputCR(vstGetData[0].szMsgPrevia)
+        print("\nMensagem = ", vstGetData[0].szMsgPrevia, "\n")
+      
+      
+      # Enquanto houverem dados para capturar
+      # inicio do for i in range(iNumParam):
+#      iNumParam = 1
+      for i in range(0,iNumParam):
+        # Imprime na tela qual informação está sendo capturada
+        
+        if(vstGetData[i].wIdentificador != 0):
+          print("\nDado a capturar = ", pszGetInfoDescription(vstGetData[i].wIdentificador),"->" ,
+            vstGetData[i].wIdentificador, "\n")
+
+        #Captura de acordo com o tipo de captura
+        ret = 0
+        # Captura de dado digitado
+        # E_PWDAT.PWDAT_TYPED
+        if(vstGetData[i].bTipoDeDado == 0):
+          return 0
+        
+        elif((vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_TYPED.value) or
+             (vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_USERAUTH.value) or
+             (vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_BARCODE.value)  ):
+
+          print("\nTipo de dados = Digitado =", vstGetData[i].bTipoDeDado )
+          print("\nTamanho minimo = %d", vstGetData[i].bTamanhoMinimo )
+          print("\nTamanho maximo = %d", vstGetData[i].bTamanhoMaximo)
+          print("\nValor atual:%s\n", vstGetData[i].szValorInicial)
+        
+          #rootwindow = pdvWindowsPayGoLibC_Python_support.root
+          if(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_USERAUTH.value):
+             d = DialogTypedData(MainWindowRoot,"Entre com a senha técnica:")
+             MainWindowRoot.wait_window(d.top)
+             print(d.valor)
+             szAux = d.valor
+
+          else:
+             d = DialogTypedData(MainWindowRoot,vstGetData[i].szPrompt)
+             MainWindowRoot.wait_window(d.top)
+             print(d.valor)
+             szAux = d.valor
+
+          ret = myPGWebLib.PW_iAddParam(vstGetData[i].wIdentificador, szAux)
+          if(ret != 0 ):
+              print("\nERRO AO ADICIONAR PARAMETRO...")
+
+        # Menu de opções
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_MENU.value):
+            print("\nTipo de dados = MENU")
+            #InputCR(vstGetData[i].szPrompt)
+            print("\n%s\n", vstGetData[i].szPrompt)
+
+            # Caso só tenha uma opção, escolhe automaticamente
+            if( vstGetData[i].bNumOpcoesMenu == 1):
+              
+                  print("\nMENU COM 1 OPCAO... ADICIONANDO AUTOMATICAMENTE...")
+                  iRet = myPGWebLib.pPW_iAddParam(vstGetData[i].wIdentificador, vstGetData[i].vszValorMenu[0])
+                  if(iRet != 0):
+                    print("\nERRO AO ADICIONAR PARAMETRO...")
+                    break
+              
+
+            listaOpcoes = []  
+            #for j in  range(vstGetData[i].bNumOpcoesMenu): 
+            #    print("\n%d - %s", vstGetData[i].vszValorMenu[j].value, vstGetData[i].vszTextoMenu[j].value)
+            
+            for j in  range(vstGetData[i].bNumOpcoesMenu): 
+                opcao = str(j + 1)
+                opcao = opcao + " - " +  vstGetData[i].vszTextoMenu[j].value.decode()
+                listaOpcoes.append(opcao)
+
+            
+            d = DialogMenuClass(MainWindowRoot,listaOpcoes,vstGetData[i].szPrompt)
+
+            MainWindowRoot.wait_window(d.top)
+            print(d.valor)
+
+            iKey = int(d.valor)
+
+            #iKey = iKey - 1
+
+            print("\n", iKey)
+            
+            param = vstGetData[i].vszValorMenu[iKey].value.decode()
+            ret = myPGWebLib.PW_iAddParam(vstGetData[i].wIdentificador, param)
+            
+            if(ret != 0):
+              print("\nERRO AO ADICIONAR PARAMETRO...")
+
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_CARDINF.value):
+              #if(vstGetData[i].ulTipoEntradaCartao == 1):
+              #    PW_GetData temp = item
+              #    temp.wIdentificador = E_PWINFO.PWINFO_CARDFULLPAN.value
+              #    ret = getTypedDataFromUser(temp);
+              #else:
+              ret = myPGWebLib.PW_iPPGetCard(index)
+              if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+              
+              MainWindow.Loga('myPGWebLib.PW_iPPGetCard')
+              return ret
+              
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_CARDONL.value):
+              ret = myPGWebLib.PW_iPPFinishChip(index)
+              
+              if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+              MainWindow.Loga('myPGWebLib.PW_iPPFinishChip')
+              return ret
+        #fim de E_PWDAT.PWDAT_CARDONL      
+
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_CARDOFF.value):
+            ret = myPGWebLib.PW_iPPGoOnChip(index)
+            
+            if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+            MainWindow.Loga('myPGWebLib.PW_iPPGoOnChip')
+            return ret
+
+        #elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_MENU.value):
+        #    return getMenuFromUser(item)
+
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_PPCONF.value):
+            ret = myPGWebLib.PW_iPPConfirmData(index)
+            
+            if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+            MainWindow.Loga('myPGWebLib.PW_iPPConfirmData')
+
+            return ret
+
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_PPENCPIN.value):
+            ret = myPGWebLib.PW_iPPGetPIN(index)
+            
+            if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+            MainWindow.Loga('myPGWebLib.PW_iPPGetPIN')
+            return ret
+
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_PPENTRY.value):
+            ret = myPGWebLib.PW_iPPGetData(index)
+            
+            if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+            MainWindow.Loga('myPGWebLib.PW_iPPGetData')
+            return ret
+
+        elif(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_PPREMCRD.value):
+            ret = myPGWebLib.PW_iPPRemoveCard()
+            
+            if (ret == E_PWRET.PWRET_OK.value): ret = loopPP()
+            MainWindow.Loga('myPGWebLib.PW_iPPRemoveCard')
+            return ret
+        else:
+           break
+              
+      return ret
+  # fim de iExecGetDataInstallJanelas
+
 
 
 ########################################################
@@ -377,6 +606,64 @@ def TesteInstalacao():
      
   # fim de TesteInstalacao
 
+
+def TesteInstalacaoJan():
+   # array de 10 posicoes
+   #PW_GetData vstParam[10]
+
+   
+   import pdvWindowsPayGoLibC_Python_support
+   MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+
+   MainWindow.Loga("TesteInstalacaoJan()")
+   vstParam_11 = (PW_GetData * 11)
+   vstParam = vstParam_11()
+   iNumParam = 10
+   iRet=0
+
+   Ret = E_PWRET.PWRET_NODATA.value
+
+   # Inicializa a transação de instalação
+   iRet = myPGWebLib.PW_iNewTransac(E_PWOPER.PWOPER_INSTALL.value)
+   
+   if( iRet != 0):
+      print("\nErro PW_iNewTransac <%d>", iRet)
+
+   # Adiciona os parâmetros obrigatórios
+   AddMandatoryParams()
+   
+   i=0
+   # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
+   # do usuário caso seja necessário
+   while i < 10:
+   
+      #Coloca o valor 10 (tamanho da estrutura de entrada) no parâmetro iNumParam
+      iNumParam = 10
+
+      # Tenta executar a transação
+      if(iRet != E_PWRET.PWRET_NOTHING.value):
+         print("\n\nPROCESSANDO...\n")
+      iRet = myPGWebLib.PW_iExecTransac(vstParam, iNumParam)
+      
+
+      #PrintReturnDescription(iRet, None)
+      
+      if(iRet == E_PWRET.PWRET_MOREDATA.value):
+      
+        #print("\nNumero de parametros ausentes = %d", iNumParam)
+         
+          #Tenta capturar os dados faltantes, caso ocorra algum erro retorna
+        ret2 = iExecGetDataInstallJanelas(vstParam, iNumParam)  
+        if( ret2 != 0):
+          return ret2
+      else:
+        return iRet
+      i = i + 1
+     
+  # fim de TesteVendaJan
+
+
+
 ########################
 # 
 def TesteIsNull():
@@ -402,7 +689,7 @@ def TesteIsNull():
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
    # do usuário caso seja necessário
-   while i < 10:
+   while i < 20:
    
       #Coloca o valor 10 (tamanho da estrutura de entrada) no parâmetro iNumParam
       iNumParam = 10
@@ -483,8 +770,338 @@ def TesteVersion():
   # fim de TesteVersion
 
 
+def TesteManutencao():
+   # array de 10 posicoes
+   #PW_GetData vstParam[10]
+
+   vstParam_11 = (PW_GetData * 11)
+   vstParam = vstParam_11()
+   iNumParam = 11
+   iRet=0
+
+   Ret = E_PWRET.PWRET_NODATA.value
+
+   # Inicializa a transação de instalação
+   iRet = myPGWebLib.PW_iNewTransac(E_PWOPER.PWOPER_MAINTENANCE.value)
+   
+   if( iRet != 0):
+      print("\nErro PW_iNewTransac <%d>", iRet)
+
+   # Adiciona os parâmetros obrigatórios
+   AddMandatoryParams()
+   
+   i=0
+   # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
+   # do usuário caso seja necessário
+   while i < 10:
+   
+      #Coloca o valor 10 (tamanho da estrutura de entrada) no parâmetro iNumParam
+      iNumParam = 10
+
+      # Tenta executar a transação
+      if(iRet != E_PWRET.PWRET_NOTHING.value):
+         print("\n\nPROCESSANDO...\n")
+      iRet = myPGWebLib.PW_iExecTransac(vstParam, iNumParam)
+      
+
+      #PrintReturnDescription(iRet, None)
+      
+      if(iRet == E_PWRET.PWRET_MOREDATA.value):
+      
+        #print("\nNumero de parametros ausentes = %d", iNumParam)
+         
+        #Tenta capturar os dados faltantes, caso ocorra algum erro retorna
+        ret2 = iExecGetDataInstallJanelas(vstParam, iNumParam)  
+        if( ret2 != 0):
+          return ret2
+      else:
+        return iRet
+      i = i + 1
+  # fim de TesteManutencao
+
+def TesteVenda():
+   # array de 10 posicoes
+   #PW_GetData vstParam[10]
+
+   vstParam_11 = (PW_GetData * 11)
+   vstParam = vstParam_11()
+   iNumParam = 11
+   iRet=0
+
+   Ret = E_PWRET.PWRET_NODATA.value
+
+   # Inicializa a transação de instalação
+   iRet = myPGWebLib.PW_iNewTransac(E_PWOPER.PWOPER_SALE.value)
+   
+   if( iRet != 0):
+      print("\nErro PW_iNewTransac <%d>", iRet)
+
+   # Adiciona os parâmetros obrigatórios
+   AddMandatoryParams()
+   
+   i=0
+   # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
+   # do usuário caso seja necessário
+   while i < 10:
+   
+      #Coloca o valor 10 (tamanho da estrutura de entrada) no parâmetro iNumParam
+      iNumParam = 10
+
+      # Tenta executar a transação
+      if(iRet != E_PWRET.PWRET_NOTHING.value):
+         print("\n\nPROCESSANDO...\n")
+      iRet = myPGWebLib.PW_iExecTransac(vstParam, iNumParam)
+      
+
+      #PrintReturnDescription(iRet, None)
+      
+      if(iRet == E_PWRET.PWRET_MOREDATA.value):
+      
+        #print("\nNumero de parametros ausentes = %d", iNumParam)
+         
+        #Tenta capturar os dados faltantes, caso ocorra algum erro retorna
+        ret2 = iExecGetDataInstallJanelas(vstParam, iNumParam)  
+        if( ret2 != 0):
+          return ret2
+      else:
+        return iRet
+      i = i + 1
+  # fim de TesteVenda
+
+
+
+
+def executeTransaction(code_tran):
+   # array de 10 posicoes
+   #PW_GetData vstParam[10]
+
+   vstParam_11 = (PW_GetData * 11)
+   vstParam = vstParam_11()
+   iNumParam = 11
+   iRet=0
+
+   import pdvWindowsPayGoLibC_Python_support
+   MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+   MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+
+
+   Ret = E_PWRET.PWRET_NODATA.value
+
+   # Inicializa a transação de instalação
+   iRet = myPGWebLib.PW_iNewTransac(code_tran)
+   
+   Nometran = ''
+   dicionarioOper = dict()
+   for item in E_PWOPER:
+       if (item.value == code_tran):
+           Nometran = item.name 
+       
+   mensagem = 'Executando transacao : ' + Nometran
+   print(mensagem)
+   MainWindow.Loga(mensagem) 
+    
+
+
+   if( iRet != 0):
+      print("\nErro PW_iNewTransac <%d>", iRet)
+
+   # Adiciona os parâmetros obrigatórios
+   AddMandatoryParams()
+   
+   i=0
+   # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
+   # do usuário caso seja necessário
+   while i < 100:
+   
+      #Coloca o valor 10 (tamanho da estrutura de entrada) no parâmetro iNumParam
+      iNumParam = 10
+
+      # Tenta executar a transação
+      if(iRet != E_PWRET.PWRET_NOTHING.value):
+         print("\n\nPROCESSANDO...\n")
+      iRet = myPGWebLib.PW_iExecTransac(vstParam, iNumParam)
+      
+
+      #PrintReturnDescription(iRet, None)
+      
+      if(iRet == E_PWRET.PWRET_MOREDATA.value):
+      
+        #print("\nNumero de parametros ausentes = %d", iNumParam)
+         
+        #Tenta capturar os dados faltantes, caso ocorra algum erro retorna
+        ret2 = iExecGetDataInstallJanelas(vstParam, iNumParam)  
+        if( ret2 != 0):
+          return ret2
+      else:
+        return iRet
+      i = i + 1
+  # fim de TesteVenda
+
+
+def confirmUndoTransactionGen(RetTransaction):
+
+  ret = 0
+
+  import pdvWindowsPayGoLibC_Python_support
+  MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+  MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+  
+  listTransactionResult = getTransactionResult();
+    
+  for item in listTransactionResult :
+
+    if((item.parameterCode == E_PWINFO.PWINFO_CNFREQ.value) and (item.parameterValue == '1')):
+      
+      if (RetTransaction == E_PWRET.PWRET_FROMHOSTPENDTRN.value):        
+          transactionStatus = E_PWCNF.PWCNF_REV_AUTO_ABORT.value
+          ret = confirmPendTransaction(transactionStatus, listTransactionResult)    
+      #fim if
+      else:
+          dicionarioConf = dict()
+          listaConf = []
+          for item in E_PWCNF:
+              print(item.value," -> ",item.name)
+              dicionarioConf[item.name] = item.value
+              listaConf.append(item.name)
+
+          cw = DialogConfirmationWindow(MainWindowRoot,listaConf,'Selecione a Opcao de Confirmaçao:')
+          transactionStatus = E_PWCNF.PWCNF_REV_AUTO_ABORT.value
+          MainWindowRoot.wait_window(cw.top)
+          print(cw.valor)
+          code_aut = dicionarioConf[cw.valor]
+
+          ret = confirmUndoTransaction(transactionStatus, listTransactionResult)
+      #fim else
+  #fim for
+  return ret
+# fim de confirmUndoTransactionGen
+
+
+
+def confirmUndoTransaction(transactionStatus, transactionResponse):
+
+  ret = 99
+
+  pszReqNum = ""
+  pszLocRef = ""
+  pszExtRef = ""
+  pszVirtMerch = ""
+  pszAuthSyst = ""
+
+  for item in transactionResponse:
+
+      if(item.parameterCode == E_PWINFO.PWINFO_REQNUM.value):
+          pszReqNum = item.parameterValue
+          break
+
+      elif(item.parameterCode == E_PWINFO.PWINFO_AUTLOCREF.value):
+          pszLocRef = item.parameterValue
+          break
+
+      elif(item.parameterCode == E_PWINFO.PWINFO_AUTEXTREF.value):
+          pszExtRef = item.parameterValue
+          break
+
+      elif(item.parameterCode == E_PWINFO.PWINFO_VIRTMERCH.value):
+          pszVirtMerch = item.parameterValue
+          break
+
+      elif(item.parameterCode == E_PWINFO.PWINFO_AUTHSYST.value):
+          pszAuthSyst = item.parameterValue
+          break
+
+      else:
+          break
+
+  #fim do for
+
+  ret = myPGWebLib.PW_iConfirmation(transactionStatus, pszReqNum, pszLocRef, pszLocRef, pszVirtMerch, pszAuthSyst);
+  
+  return ret;
+#fim de confirmUndoTransaction
+         
+def confirmPendTransaction(transactionStatus,transactionResponse):
+
+    ret = 99;
+
+    pszReqNum    = ''
+    pszLocRef    = ''
+    pszExtRef    = ''
+    pszVirtMerch = ''
+    pszAuthSyst  = ''
+
+    for item in transactionResponse:
+        if(item.parameterCode == E_PWINFO.PWINFO_PNDREQNUM.value):
+            pszReqNum = item.parameterValue
+            break
+
+        elif(item.parameterCode == E_PWINFO.PWINFO_PNDAUTLOCREF.value):
+            pszLocRef = item.parameterValue
+            break
+
+        elif(item.parameterCode == E_PWINFO.PWINFO_PNDAUTEXTREF.value):
+            pszExtRef = item.parameterValue
+            break
+
+        elif(item.parameterCode == E_PWINFO.PWINFO_PNDVIRTMERCH.value):
+            pszVirtMerch = item.parameterValue
+            break
+
+        elif(item.parameterCode == E_PWINFO.PWINFO_PNDAUTHSYST.value):
+            pszAuthSyst = item.parameterValue
+            break
+
+        else:
+            break
+          
+    #fim do for
+
+    
+    ret = myPGWebLib.PW_iConfirmation(transactionStatus, pszReqNum, pszLocRef, pszLocRef, pszVirtMerch, pszAuthSyst);
+    return ret
+#fim de confirmPendTransaction
+
+
+
+
+
 def getTransactionResult():
     
+  ListPW_Parameter = []
+
+  message = ''
+
+  value = create_string_buffer(100000)
+  
+  print('---------------------------------------------------')
+  print('Transaction Result:\n\n')
+  
+  for  item in E_PWINFO:
+
+    getInfoRet=0
+    i = 0
+
+    
+    getInfoRet = myPGWebLib.PW_iGetResult( item.value, value, len(value))
+    
+    if (getInfoRet == 0):
+      ListPW_Parameter.append(PW_Parameter(item.name, item.value, value.value.decode()))
+      print(item.name, " = " , value.value.decode())
+  #fim do for 
+  
+  return ListPW_Parameter
+
+# fim de getTransactionResult
+
+
+def LogaTransactionResult():
+    
+
+    import pdvWindowsPayGoLibC_Python_support
+    MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+    MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+
+
     ListPW_Parameter = []
 
     message = ''
@@ -503,7 +1120,10 @@ def getTransactionResult():
         
         #if (getInfoRet == 0) ret.Add(new PW_Parameter(item.ToString(), (ushort)item, value.ToString()));
         if (iRet == 0): 
-             print(item.name, " = " , szAux.value.decode())
+             mensagem = item.name + " = " +  szAux.value.decode()
+             print(mensagem)
+             MainWindow.Loga(mensagem) 
+
 
 
 

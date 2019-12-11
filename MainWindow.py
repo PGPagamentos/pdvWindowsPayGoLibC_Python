@@ -15,10 +15,15 @@ from PGWlib import *
 ret = myPGWebLib.PW_iInit()
 print("ret PW_iInit() =")
 
+
 print(ret)
 
-TesteInstalacao()
-#TesteIsNull()
+# faz instalação 
+# dados de entrada e saida na aba TERMINAL do Ambiente
+
+TesteInstalacaoJan()
+#ret = TesteIsNull()
+#TesteManutencao()
 #TesteVersion()
 #PrintResultParams()
 getTransactionResult()
