@@ -56,16 +56,18 @@ def ButtonMouse1btnCaptura(p1):
     sys.stdout.flush()
 
 def ButtonMouse1btnExecutar(p1):
-    print('pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnExecutar')
-    print('get combobox selected',w.cmbOper.get())
-    w.Loga("get combobox selected" + w.cmbOper.get())
+    #print('pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnExecutar')
+    #print('get combobox selected',w.cmbOper.get())
+    #w.Loga("get combobox selected" + w.cmbOper.get())
     selecionado = w.cmbOper.get()
     code_tran = w.dicionarioOper[selecionado]
-    #ret = PGWlib.executeTransaction(code_tran)
     ret=PGWlib.execTrans(code_tran)
     PGWlib.LogaTransactionResult()
     PGWlib.confirmUndoTransactionGen(ret) 
     PGWlib.LogaTransactionResult()
+    #w.btnExecutar.config(relief=SUNKEN)
+    #w.btnExecutar.config(state="disabled")
+    #w.btnExecutar.config(state="normal")
     sys.stdout.flush()
     
 
