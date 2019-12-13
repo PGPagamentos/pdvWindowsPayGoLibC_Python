@@ -52,6 +52,7 @@ def ButtonMouse1btnCaptura(p1):
     #global MainWindow
     print('pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnCaptura')
     w.Loga("testando ButtonMouse1btnCaptura")
+    PGWlib.CaptureWithPinpad()
     sys.stdout.flush()
 
 def ButtonMouse1btnExecutar(p1):

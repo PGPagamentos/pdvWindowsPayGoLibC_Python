@@ -10,6 +10,7 @@ from  DialogMenuClass  import *
 from  DialogMessage    import *
 from time import *
 from DialogConfirmationWindow import *
+from DialogSelectUserDataWindow import *
 
 myPGWebLib = None
 
@@ -906,9 +907,9 @@ def execTrans(cod_trans):
     else:
     
       print("----------------")
-      sErrorMessage = "Erro :" + sError + " : result message : " + sResultMessage + " ao executar a transação: " + cod_trans
+      #sErrorMessage = "Erro :" + sError + " : result message : " + sResultMessage + " ao executar a transação: " + cod_trans
 
-      print(sErrorMessage)
+      #print(sErrorMessage)
 
       #ShowMessageBoxError(this, sErrorMessage);
       LogaTransactionResult()
@@ -1139,7 +1140,75 @@ def confirmPendTransaction(transactionStatus,transactionResponse):
 
 
 
+def CaptureWithPinpad():
 
+  param = "";
+  minLength = 0
+  maxLength = 0
+   
+  import pdvWindowsPayGoLibC_Python_support
+  MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+  MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+  
+
+  dicionarioCaptura = dict()
+  listaCaptura = []
+  for item in E_PWUserDataMessages:
+      print(item.value," -> ",item.name)
+      dicionarioCaptura[item.name] = item.value
+      listaCaptura.append(item.name)
+
+  selectUserDataWindow = DialogSelectUserDataWindow(MainWindowRoot,listaCaptura,'Selecione a Opcao de Captura:')
+  
+  MainWindowRoot.wait_window(selectUserDataWindow.top)
+  print(selectUserDataWindow.valor)
+  
+  code_captura = dicionarioCaptura[selectUserDataWindow.valor]
+
+  minLength = int(selectUserDataWindow.min)
+  maxLength = int(selectUserDataWindow.max)   
+   
+  
+  if (minLength > 0):
+      userTypedValue = ""
+
+      ret , userTypedValue = getInputFromPP(code_captura, minLength, maxLength)
+
+      if (ret != 0):
+         mensagem = "Erro ao executar a captura de dado no PINPad"
+         fdm = DialogMessage(MainWindowRoot,mensagem)
+         MainWindowRoot.wait_window(fdm.top)
+      else:
+         mensagem = "Dados Capturados no PinPad : " + userTypedValue
+         fdm = DialogMessage(MainWindowRoot,mensagem)
+         MainWindowRoot.wait_window(fdm.top)
+         MainWindow.Loga('-------------------------------------')
+         MainWindow.Loga(mensagem)
+  #fim do if
+
+# fim de CaptureWithPinpad
+
+
+
+
+def getInputFromPP(messageToDisplay, minLength, MaxLength, timeout = 30):
+
+  
+  value = create_string_buffer(10000)
+  ret = 0
+  userTypedValue =''
+
+  ret = myPGWebLib.PW_iPPGetUserData(messageToDisplay, minLength, MaxLength, timeout, value);
+  #Debug.Print(string.Format("CALLED iPPGetUserData COM RETORNO {0}", ret.ToString()));
+  
+
+  userTypedValue = value.value.decode()
+  #Debug.Print(string.Format("E VALOR {0}", userTypedValue));
+
+  
+  
+  return ret, userTypedValue
+# fim de getInputFromPP
 
 def getTransactionResult():
     
