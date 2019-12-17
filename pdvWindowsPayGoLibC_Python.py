@@ -50,6 +50,8 @@ def vp_start_gui():
     pdvWindowsPayGoLibC_Python_support.init(root, top)
 
     
+
+    addMandatoryParameters(top)
     LogaTransactionResult()
     root.mainloop()
 
@@ -96,18 +98,18 @@ class Toplevel1:
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
 
-        self.Instala = tk.Button(top)
-        self.Instala.place(relx=0.047, rely=0.018, height=24, width=67)
-        self.Instala.configure(activebackground="#ececec")
-        self.Instala.configure(activeforeground="#000000")
-        self.Instala.configure(background="#d9d9d9")
-        self.Instala.configure(disabledforeground="#a3a3a3")
-        self.Instala.configure(foreground="#000000")
-        self.Instala.configure(highlightbackground="#d9d9d9")
-        self.Instala.configure(highlightcolor="black")
-        self.Instala.configure(pady="0")
-        self.Instala.configure(text='''Instala''')
-        self.Instala.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1Instala(e))
+        #self.Instala = tk.Button(top)
+        #self.Instala.place(relx=0.047, rely=0.018, height=24, width=67)
+        #self.Instala.configure(activebackground="#ececec")
+        #self.Instala.configure(activeforeground="#000000")
+        #self.Instala.configure(background="#d9d9d9")
+        #self.Instala.configure(disabledforeground="#a3a3a3")
+        #self.Instala.configure(foreground="#000000")
+        #self.Instala.configure(highlightbackground="#d9d9d9")
+        #self.Instala.configure(highlightcolor="black")
+        #self.Instala.configure(pady="0")
+        #self.Instala.configure(text='''Instala''')
+        #self.Instala.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1Instala(e))
 
         #self.LogDll = tk.Listbox(top)
         
@@ -158,6 +160,7 @@ class Toplevel1:
         self.lstParameters.configure(highlightcolor="black")
         self.lstParameters.configure(selectbackground="#c4c4c4")
         self.lstParameters.configure(selectforeground="black")
+        self.lstParameters.bind('<<ListboxSelect>>',lambda e:pdvWindowsPayGoLibC_Python_support.SelectedlstParameters(e))
 
         self.Label1 = tk.Label(top)
         self.Label1.place(relx=0.047, rely=0.091, height=21, width=126)
@@ -274,7 +277,13 @@ class Toplevel1:
         self.LogDll.config(state="normal")
         self.LogDll.insert(END, message + "\n")
         self.LogDll.config(state="disabled")
-   
+
+    def InsereParametro(self,parametro):
+        self.lstParameters.insert(END, parametro)
+    
+    def DeletaParametro(self,iPosParametro):
+        self.lstParameters.delete(iPosParametro)
+
 
 if __name__ == '__main__':
     vp_start_gui()

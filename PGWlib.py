@@ -15,6 +15,8 @@ from DialogSelectUserDataWindow import *
 myPGWebLib = None
 
 
+listaParametros = []
+
 # cria objeto de acesso a DLL
 myPGWebLib = PGWebLibrary()
 
@@ -22,7 +24,7 @@ MainWindow  = ""
 
 
 
-def AddMandatoryParams():
+def AddMandatoryParamsOld():
    # Adiciona os parâmetros obrigatórios
 
    myPGWebLib.PW_iAddParam(E_PWINFO.PWINFO_AUTDEV.value, "NTK Solutions Ltda")
@@ -44,8 +46,41 @@ def AddMandatoryParams():
    #myPGWebLib.PW_iAddParam(E_PWINFO.PWINFO_AUTCAP.value, '15')
    #myPGWebLib.PW_iAddParam(E_PWINFO.PWINFO_AUTHTECHUSER.value, 'PAYGOTESTE')
 
+################
+#adiciona os parametros obrigatorios
+def addMandatoryParameters(top):
+ 
+    addParameter(E_PWINFO.PWINFO_AUTNAME.name, E_PWINFO.PWINFO_AUTNAME.value, "PDVS",top);
+    addParameter(E_PWINFO.PWINFO_AUTVER.name,  E_PWINFO.PWINFO_AUTVER.value, "1.0",top);
+    addParameter(E_PWINFO.PWINFO_AUTDEV.name,  E_PWINFO.PWINFO_AUTDEV.value, "NTK Solutions Ltda",top);
+    addParameter(E_PWINFO.PWINFO_AUTCAP.name,  E_PWINFO.PWINFO_AUTCAP.value, "28",top);  
+
+# fim de addMandatoryParameters2
+ 
+
+# metodo para adicao de parametros
+def addParameter(sParName, iParId, sParVal, top = None): 
+  Cobj = PW_Parameter(sParName, iParId, sParVal)
+  strItem = sParName + '(' + str(iParId) +  ')' + ':' + sParVal
+  listaParametros.append(Cobj)
+  if(top != None):
+      top.InsereParametro(strItem)
+  print(listaParametros)
+  
+ #ParametersListStore.AppendValues(par.ToString());	
+
+# fim de addParameter
+
+##################
+
+def DelParameter(iIndice): 
+    o = listaParametros.pop(iIndice)
+    print(o) 
 
 
+def CleanParameterList(): 
+    o = listaParametros.clear()
+    print(listaParametros) 
 
 
 
@@ -575,7 +610,7 @@ def TesteInstalacao():
       print("\nErro PW_iNewTransac <%d>", iRet)
 
    # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+   #AddMandatoryParams()
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
@@ -631,7 +666,7 @@ def TesteInstalacaoJan():
       print("\nErro PW_iNewTransac <%d>", iRet)
 
    # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+   #AddMandatoryParams()
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
@@ -685,7 +720,7 @@ def TesteIsNull():
       print("\nErro PW_iNewTransac <%d>", iRet)
 
    # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+   #AddMandatoryParams()
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
@@ -739,7 +774,7 @@ def TesteVersion():
       print("\nErro PW_iNewTransac <%d>", iRet)
 
    # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+   #AddMandatoryParams()
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
@@ -789,7 +824,7 @@ def TesteManutencao():
       print("\nErro PW_iNewTransac <%d>", iRet)
 
    # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+   #AddMandatoryParams()
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
@@ -838,7 +873,7 @@ def TesteVenda():
       print("\nErro PW_iNewTransac <%d>", iRet)
 
    # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+   #AddMandatoryParams()
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
@@ -942,13 +977,10 @@ def startTransaction(operation, paramList):
   if (ret != E_PWRET.PWRET_OK.value):
      return ret
 
-  #foreach (PW_Parameter item in paramList)
-  #{
-  #    ret = Interop.PW_iAddParam(item.parameterCode, item.parameterValue);
-  #    Debug.Print(string.Format("CALLED iAddParam COM ÍNDICE {0}, VALOR {1} E RETORNO {2}", item.parameterName, item.parameterValue, ret.ToString()));
-  #    if (ret != 0) return ret;
-  #}
-
+  for item in  listaParametros: 
+      ret = myPGWebLib.PW_iAddParam(item.parameterCode, item.parameterValue)
+      if (ret != 0): return ret
+  
   ret = executeTransaction(operation);
 
   
@@ -992,8 +1024,7 @@ def executeTransaction(code_tran):
    if( iRet != 0):
       print("\nErro PW_iNewTransac <%d>", iRet)
 
-   # Adiciona os parâmetros obrigatórios
-   AddMandatoryParams()
+  
    
    i=0
    # Loop até que ocorra algum erro ou a transação seja aprovada, capturando dados
