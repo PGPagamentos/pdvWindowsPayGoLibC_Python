@@ -11,6 +11,10 @@ from  DialogMessage    import *
 from time import *
 from DialogConfirmationWindow import *
 from DialogSelectUserDataWindow import *
+from DialogDateEntry import *
+from DialogPasswordData import *
+from DialogTimeEntry import *  
+from DialogCurrencyData import *
 
 myPGWebLib = None
 
@@ -460,17 +464,59 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
           print("\nTamanho minimo = %d", vstGetData[i].bTamanhoMinimo )
           print("\nTamanho maximo = %d", vstGetData[i].bTamanhoMaximo)
           print("\nValor atual:%s\n", vstGetData[i].szValorInicial)
+          print("\nMascaraDeCaptura:%s\n", vstGetData[i].szMascaraDeCaptura.decode())
         
           #rootwindow = pdvWindowsPayGoLibC_Python_support.root
+          # senhas
           if(vstGetData[i].bTipoDeDado == E_PWDAT.PWDAT_USERAUTH.value):
-             d = DialogTypedData(MainWindowRoot,"Entre com a senha técnica:")
+             if(vstGetData[i].wIdentificador == E_PWINFO.PWINFO_AUTHMNGTUSER.value): 
+                Prompt = "INSIRA A SENHA DO LOJISTA:"
+             else: 
+                Prompt = "INSIRA A SENHA TÉCNICA:"
+             d = DialogPasswordData(MainWindowRoot,Prompt)
+             # font=('Courier', 16, NORMAL), border=0
+             
              MainWindowRoot.wait_window(d.top)
+             MainWindow.Loga(Prompt)
+             print(d.password)
+             szAux = d.valor
+          #data dd/mm/aa
+          elif (vstGetData[i].szMascaraDeCaptura.decode() == '@@/@@/@@'):
+             d=DialogDateEntry(MainWindowRoot, vstGetData[i].szPrompt.decode(),2,font=('Courier', 16, NORMAL), border=0)
+             MainWindowRoot.wait_window(d.top)
+             MainWindow.Loga(vstGetData[i].szPrompt)
+             MainWindow.Loga(d.valor)
              print(d.valor)
              szAux = d.valor
-
+          #data dd/mm/aaaa
+          elif (vstGetData[i].szMascaraDeCaptura.decode() == '@@/@@/@@@@'):  
+             d=DialogDateEntry(MainWindowRoot, vstGetData[i].szPrompt.decode(),4,font=('Courier', 16, NORMAL), border=0)
+             MainWindowRoot.wait_window(d.top)
+             MainWindow.Loga(vstGetData[i].szPrompt)
+             MainWindow.Loga(d.valor)
+             print(d.valor)
+             szAux = d.valor
+          # hora hh:mm
+          elif (vstGetData[i].szMascaraDeCaptura.decode() == '@@:@@'):  
+             d=DialogTimeEntry(MainWindowRoot, vstGetData[i].szPrompt.decode(),font=('Courier', 16, NORMAL), border=0)
+             MainWindowRoot.wait_window(d.top)
+             MainWindow.Loga(vstGetData[i].szPrompt)
+             MainWindow.Loga(d.valor)
+             print(d.valor)
+             szAux = d.valor
+          # dinheiro 
+          elif(vstGetData[i].szMascaraDeCaptura.decode().find('@@,@') != -1):
+             d = DialogCurrencyData(MainWindowRoot,vstGetData[i].szPrompt)
+             MainWindowRoot.wait_window(d.top)
+             MainWindow.Loga(vstGetData[i].szPrompt)
+             MainWindow.Loga(d.valor)
+             print(d.valor)
+             szAux = d.valor
           else:
              d = DialogTypedData(MainWindowRoot,vstGetData[i].szPrompt)
              MainWindowRoot.wait_window(d.top)
+             MainWindow.Loga(vstGetData[i].szPrompt)
+             MainWindow.Loga(d.valor)
              print(d.valor)
              szAux = d.valor
 
@@ -483,6 +529,8 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
             print("\nTipo de dados = MENU")
             #InputCR(vstGetData[i].szPrompt)
             print("\n%s\n", vstGetData[i].szPrompt)
+            MainWindow.Loga('Menu : ')
+            MainWindow.Loga(vstGetData[i].szPrompt)
 
             # Caso só tenha uma opção, escolhe automaticamente
             if( vstGetData[i].bNumOpcoesMenu == 1):
@@ -514,6 +562,7 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
             #iKey = iKey - 1
 
             print("\n", iKey)
+            MainWindow.Loga('Opcao Selecionada : ' + str(d.valor))
             
             param = vstGetData[i].vszValorMenu[iKey].value.decode()
             ret = myPGWebLib.PW_iAddParam(vstGetData[i].wIdentificador, param)

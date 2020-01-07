@@ -275,7 +275,13 @@ class Toplevel1:
 
     def Loga(self,message):
         self.LogDll.config(state="normal")
-        self.LogDll.insert(END, message + "\n")
+        messageAux =''
+        if(type(message) != str):
+          messageAux = message.decode()
+        else:
+          messageAux = message
+
+        self.LogDll.insert(END, messageAux + "\n")
         self.LogDll.config(state="disabled")
 
     def InsereParametro(self,parametro):
