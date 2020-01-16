@@ -32,12 +32,7 @@ ActiveTcl-8.6.9.8609.2-MSWin32-x64.exe
 5) A dll deve estar no diretório onde script python é  executado. Por exemplo no ambiente de desenvolvimento é :
 pdvWindowsPayGoLibC_Python/
 
-6) Deve ser executado o script pdvWindowsPayGoLibC_Python.py
+6) Deve ser executado o script pdvWindowsPayGoLibC_Python.py dentro do ambiente python do VS Code
 
-7) OBservação para os testes:
-   Os campos de entrada de data e valor ainda não possuem auto formatação
-   
-   a) Por exemplo o valor de 13,00 deve ser entrado como 1300
-   b) A data 12/12/19 deve ser entrada como   121219 
 
 
