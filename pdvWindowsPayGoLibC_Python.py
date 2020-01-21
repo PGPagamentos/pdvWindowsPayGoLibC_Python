@@ -282,6 +282,7 @@ class Toplevel1:
           messageAux = message
 
         self.LogDll.insert(END, messageAux + "\n")
+        self.LogDll.see(END)
         self.LogDll.config(state="disabled")
 
     def InsereParametro(self,parametro):
