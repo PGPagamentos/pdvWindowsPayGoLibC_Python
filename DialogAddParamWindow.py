@@ -7,6 +7,7 @@ class DialogAddParamWindow:
     
     def __init__(self, parent,itemsforcombobox,mensagem):
 
+        self.bExit = True
         top = self.top = Toplevel(parent)
 
         self.ValParam = ''
@@ -20,7 +21,7 @@ class DialogAddParamWindow:
         ###############
 
 
-        self.cb = ttk.Combobox(top,width = 50, values = itemsforcombobox)
+        self.cb = ttk.Combobox(top,width = 50, values = itemsforcombobox,state="readonly")
 
         #self.cb.current(1)
         
@@ -62,7 +63,7 @@ class DialogAddParamWindow:
 
 
     def ok(self):
-
+        self.bExit = False
         print ("value is", self.valor)
         self.param = self.cb.get()
         print(self.EntryValParam.get())

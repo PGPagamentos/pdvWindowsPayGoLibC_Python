@@ -5,6 +5,7 @@ class DialogMenuClass:
     
     def __init__(self, parent,itemsforlistbox,mensagem):
 
+        self.bExit = True
         top = self.top = Toplevel(parent)
 
         
@@ -39,7 +40,7 @@ class DialogMenuClass:
 
 
     def ok(self):
-
+        self.bExit = False
         print ("value is", self.valor)
         self.top.destroy()
 

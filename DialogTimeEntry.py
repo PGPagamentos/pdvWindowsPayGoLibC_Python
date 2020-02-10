@@ -3,6 +3,7 @@ from  tkinter import *
 
 class DialogTimeEntry():
     def __init__(self, master,message, frame_look={}, **look):
+        self.bExit = True
         args = dict(relief=SUNKEN, border=1)
         args0 = dict(relief=SUNKEN, border=1)
         args.update(frame_look)
@@ -80,7 +81,8 @@ class DialogTimeEntry():
     def get(self):
         return [e.get() for e in self.entries]
 
-    def ok(self):            
+    def ok(self):
+      self.bExit = False            
       self.valor = self.get()  
       print('teste de data:')
       print(self.valor)

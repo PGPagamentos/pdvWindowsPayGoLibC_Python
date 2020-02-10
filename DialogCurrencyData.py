@@ -4,6 +4,7 @@ class DialogCurrencyData:
 
     def __init__(self, parent,mensagem):
 
+        self.bExit = True  
         top = self.top = Toplevel(parent)
 
         
@@ -20,6 +21,7 @@ class DialogCurrencyData:
 
 
         self.entry = Entry(top,textvariable=self.entryText,width=70) # entrada de dados
+        self.entry.focus_set()
         self.entry.bind("<KeyRelease>",lambda v: top.after(400,self.txtValue_KeyUp))
         self.entry.pack(padx=5)
 
@@ -156,7 +158,7 @@ class DialogCurrencyData:
 
 
     def ok(self):
-
+      self.bExit = False  
       print ("value is", self.entry.get())
             
       self.valor  = self.valor.replace(',', '')

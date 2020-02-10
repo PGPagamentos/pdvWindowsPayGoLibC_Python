@@ -7,6 +7,7 @@ class DialogConfirmationWindow:
     
     def __init__(self, parent,itemsforcombobox,mensagem):
 
+        self.bExit = True 
         top = self.top = Toplevel(parent)
 
         
@@ -16,7 +17,8 @@ class DialogConfirmationWindow:
         #self.e.pack(padx=5)
 
         ###############
-        self.cb = ttk.Combobox(top,width = 60, values = itemsforcombobox)
+        # 
+        self.cb = ttk.Combobox(top,width = 60, values = itemsforcombobox, state="readonly")
 
         #self.cb.current(1)
         
@@ -53,7 +55,7 @@ class DialogConfirmationWindow:
 
 
     def ok(self):
-
+        self.bExit = False
         print ("value is", self.valor)
         self.top.destroy()
 

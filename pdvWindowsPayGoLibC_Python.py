@@ -49,7 +49,6 @@ def vp_start_gui():
     teste1 = top
     pdvWindowsPayGoLibC_Python_support.init(root, top)
 
-    
 
     addMandatoryParameters(top)
     LogaTransactionResult()
@@ -69,6 +68,7 @@ def create_Toplevel1(root, *args, **kwargs):
 def destroy_Toplevel1():
     global w
     w.destroy()
+
     w = None
 
 class Toplevel1:
@@ -98,20 +98,7 @@ class Toplevel1:
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
 
-        #self.Instala = tk.Button(top)
-        #self.Instala.place(relx=0.047, rely=0.018, height=24, width=67)
-        #self.Instala.configure(activebackground="#ececec")
-        #self.Instala.configure(activeforeground="#000000")
-        #self.Instala.configure(background="#d9d9d9")
-        #self.Instala.configure(disabledforeground="#a3a3a3")
-        #self.Instala.configure(foreground="#000000")
-        #self.Instala.configure(highlightbackground="#d9d9d9")
-        #self.Instala.configure(highlightcolor="black")
-        #self.Instala.configure(pady="0")
-        #self.Instala.configure(text='''Instala''')
-        #self.Instala.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1Instala(e))
-
-        #self.LogDll = tk.Listbox(top)
+        
         
         self.LogDll = ScrolledText(top, height=5); 
         self.LogDll.grid(row=1, column=1)
@@ -129,7 +116,7 @@ class Toplevel1:
         #self.LogDll.yscrollcommand = True
         #self.LogDll.xscrollcommand = True
 
-        self.cmbOper = ttk.Combobox(top)
+        self.cmbOper = ttk.Combobox(top,state="readonly")
         self.cmbOper.place(relx=0.201, rely=0.091, relheight=0.038
                 , relwidth=0.252)
         
@@ -184,7 +171,7 @@ class Toplevel1:
         self.Label2.configure(highlightcolor="black")
         self.Label2.configure(text='''PARÂMETROS:''')
 
-        self.btnRemover = tk.Button(top)
+        self.btnRemover = tk.Button(top, relief = GROOVE)
         self.btnRemover.place(relx=0.201, rely=0.164, height=24, width=87)
         self.btnRemover.configure(activebackground="#ececec")
         self.btnRemover.configure(activeforeground="#000000")
@@ -195,9 +182,9 @@ class Toplevel1:
         self.btnRemover.configure(highlightcolor="black")
         self.btnRemover.configure(pady="0")
         self.btnRemover.configure(text='''Remover''')
-        self.btnRemover.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnRemover(e))
+        self.btnRemover.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnRemover(e))
 
-        self.btnAdicionar = tk.Button(top)
+        self.btnAdicionar = tk.Button(top, relief = GROOVE)
         self.btnAdicionar.place(relx=0.343, rely=0.164, height=24, width=87)
         self.btnAdicionar.configure(activebackground="#ececec")
         self.btnAdicionar.configure(activeforeground="#000000")
@@ -208,9 +195,9 @@ class Toplevel1:
         self.btnAdicionar.configure(highlightcolor="black")
         self.btnAdicionar.configure(pady="0")
         self.btnAdicionar.configure(text='''Adicionar''')
-        self.btnAdicionar.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnAdicionar(e))
+        self.btnAdicionar.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnAdicionar(e))
 
-        self.btnLimpar = tk.Button(top)
+        self.btnLimpar = tk.Button(top, relief = GROOVE)
         self.btnLimpar.place(relx=0.047, rely=0.765, height=24, width=68)
         self.btnLimpar.configure(activebackground="#ececec")
         self.btnLimpar.configure(activeforeground="#000000")
@@ -221,9 +208,10 @@ class Toplevel1:
         self.btnLimpar.configure(highlightcolor="black")
         self.btnLimpar.configure(pady="0")
         self.btnLimpar.configure(text='''Limpar''')
-        self.btnLimpar.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnLimpar(e))
+        self.btnLimpar.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnLimpar(e))
 
-        self.btnCaptura = tk.Button(top)
+        # tk.Button(top, relief = GROOVE)
+        self.btnCaptura = tk.Button(top, relief = GROOVE)
         self.btnCaptura.place(relx=0.142, rely=0.765, height=24, width=93)
         self.btnCaptura.configure(activebackground="#ececec")
         self.btnCaptura.configure(activeforeground="#000000")
@@ -234,9 +222,10 @@ class Toplevel1:
         self.btnCaptura.configure(highlightcolor="black")
         self.btnCaptura.configure(pady="0")
         self.btnCaptura.configure(text='''Captura PinPad''')
-        self.btnCaptura.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnCaptura(e))
+        self.btnCaptura.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnCaptura(e))
 
-        self.btnExecutar = tk.Button(top)
+        self.btnExecutar = tk.Button(top,relief = GROOVE)
+        
         self.btnExecutar.place(relx=0.284, rely=0.765, height=24, width=55)
         self.btnExecutar.configure(activebackground="#ececec")
         self.btnExecutar.configure(activeforeground="#000000")
@@ -246,10 +235,14 @@ class Toplevel1:
         self.btnExecutar.configure(highlightbackground="#d9d9d9")
         self.btnExecutar.configure(highlightcolor="black")
         self.btnExecutar.configure(pady="0")
-        self.btnExecutar.configure(text='''Executar''')
-        self.btnExecutar.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnExecutar(e))
+        self.btnExecutar.configure(text='Executar')
+        #("<ButtonRelease-1>"
+        #self.btnExecutar.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnExecutar(e))
+        self.btnExecutar.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnExecutar(e))
+        self.btnExecutar.configure(relief = GROOVE)
 
-        self.btnLimpaLog = tk.Button(top)
+
+        self.btnLimpaLog = tk.Button(top, relief = GROOVE)
         self.btnLimpaLog.place(relx=0.52, rely=0.801, height=24, width=77)
         self.btnLimpaLog.configure(activebackground="#ececec")
         self.btnLimpaLog.configure(activeforeground="#000000")
@@ -260,7 +253,7 @@ class Toplevel1:
         self.btnLimpaLog.configure(highlightcolor="black")
         self.btnLimpaLog.configure(pady="0")
         self.btnLimpaLog.configure(text='''Limpa Log''')
-        self.btnLimpaLog.bind('<Button-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnLimpaLog(e))
+        self.btnLimpaLog.bind('<ButtonRelease-1>',lambda e:pdvWindowsPayGoLibC_Python_support.ButtonMouse1btnLimpaLog(e))
 
         self.Label3 = tk.Label(top)
         self.Label3.place(relx=0.662, rely=0.018, height=21, width=128)
@@ -290,6 +283,12 @@ class Toplevel1:
     
     def DeletaParametro(self,iPosParametro):
         self.lstParameters.delete(iPosParametro)
+    
+    def RessetButtonExecutar(self):
+        print('RessetButtonExecutar():') 
+        self.btnExecutar.config(relief= GROOVE)
+        #self.btnExecutar.config(state="disabled")
+        #self.btnExecutar.config(state="normal")
 
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ class DialogPasswordData:
 
     def __init__(self, parent,mensagem):
 
+        self.bExit = True
         top = self.top = Toplevel(parent)
 
         self.password = StringVar()
@@ -33,7 +34,7 @@ class DialogPasswordData:
 
 
     def ok(self):
-
+        self.bExit = False
         print ("password is", self.password.get())
         self.valor = self.password.get()
         self.top.destroy()

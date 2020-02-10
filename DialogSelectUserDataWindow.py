@@ -7,6 +7,7 @@ class DialogSelectUserDataWindow:
     
     def __init__(self, parent,itemsforcombobox,mensagem):
 
+        self.bExit = True
         top = self.top = Toplevel(parent)
 
         self.max = ''
@@ -14,7 +15,7 @@ class DialogSelectUserDataWindow:
  
         Label(top, text=mensagem).pack()
         ###############
-        self.cb = ttk.Combobox(top,width = 60, values = itemsforcombobox)
+        self.cb = ttk.Combobox(top,width = 60, values = itemsforcombobox,state="readonly")
 
         #self.cb.current(1)
         
@@ -57,7 +58,7 @@ class DialogSelectUserDataWindow:
 
 
     def ok(self):
-
+        self.bExit = False
         print ("value is", self.valor)
         self.valor = self.cb.get()
         print(self.EntryMax.get())
@@ -72,10 +73,10 @@ class DialogSelectUserDataWindow:
         print(self.cb.get())
         print(self.cb.current())
         self.valor = self.cb.get()
-        print(self.EntryMax.cget())
-        print(self.EntryMin.get())
-        self.min = self.EntryMin.get()
-        self.max = self.EntryMax.get()
+        #print(self.EntryMax.cget())
+        #print(self.EntryMin.get())
+        #self.min = self.EntryMin.get()
+        #self.max = self.EntryMax.get()
 
 
 

@@ -4,6 +4,7 @@ class DialogMessage:
 
     def __init__(self, parent,mensagem):
 
+        self.bExit = True
         top = self.top = Toplevel(parent)
 
         top.title('Mensagem Informativa')
@@ -26,7 +27,8 @@ class DialogMessage:
         # centraliza a janela
         top.geometry("+{}+{}".format(positionRight, positionDown))
 
-    def ok(self):        
+    def ok(self):
+        self.bExit = False        
         self.top.destroy()
 
 

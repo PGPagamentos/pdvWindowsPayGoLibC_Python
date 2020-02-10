@@ -55,8 +55,16 @@ def ButtonMouse1btnAdicionar(p1):
         listaPar.append(item.name)
 
     parWindow = DialogAddParamWindow(root,listaPar,'Selecione O parametro a ser inserido:')
-      
+
+    
     root.wait_window(parWindow.top)
+    
+    if(parWindow.bExit == True): # janela fechou sem OK
+       print('Não Adicionou Parametro')
+       sys.stdout.flush()
+       return
+
+    
     print(parWindow.param)
     print(parWindow.ValParam)
     code_par = dicionarioPar[parWindow.param]
@@ -82,13 +90,15 @@ def ButtonMouse1btnExecutar(p1):
     selecionado = w.cmbOper.get()
     code_tran = w.dicionarioOper[selecionado]
     ret=PGWlib.execTrans(code_tran)
-    PGWlib.LogaTransactionResult()
-    PGWlib.confirmUndoTransactionGen(ret) 
+    if(ret == 0):
+      PGWlib.LogaTransactionResult()
+      PGWlib.confirmUndoTransactionGen(ret) 
     PGWlib.LogaTransactionResult()
     #w.btnExecutar.config(relief=SUNKEN)
     #w.btnExecutar.config(state="disabled")
     #w.btnExecutar.config(state="normal")
-    sys.stdout.flush()
+    w.RessetButtonExecutar()
+    #sys.stdout.flush()
     
 
 def ButtonMouse1btnLimpaLog(p1):

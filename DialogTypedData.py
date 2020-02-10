@@ -3,7 +3,8 @@ from  tkinter import *
 class DialogTypedData:
 
     def __init__(self, parent,mensagem):
-
+        
+        self.bExit = True
         top = self.top = Toplevel(parent)
 
         
@@ -29,16 +30,18 @@ class DialogTypedData:
         
         # centraliza a janela
         top.geometry("+{}+{}".format(positionRight, positionDown))
-
+   
 
     def ok(self):
-
+        self.bExit = False
         print ("value is", self.e.get())
-        self.valor = self.e.get()
+        self.valor = self.e.get()        
         self.top.destroy()
 
+   
 
 ############################
+
 #root=Tk()
 #sizex = 600
 #sizey = 400
@@ -48,11 +51,11 @@ class DialogTypedData:
 
 
 #itemsforlistbox=['one','two','three','four','five','six','seven','eight 8888888888888888888888888888888888888888888']
-
 #d = DialogTypedData(root,'selecione a opcao:')
 
 #root.wait_window(d.top)
 #print(d.valor)
+#print(d.bExit)
 
 
 #root.mainloop()

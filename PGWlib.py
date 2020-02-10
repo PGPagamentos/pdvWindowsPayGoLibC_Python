@@ -444,7 +444,7 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
 #      iNumParam = 1
       for i in range(0,iNumParam):
         # Imprime na tela qual informação está sendo capturada
-        
+        d = 0
         if(vstGetData[i].wIdentificador != 0):
           print("\nDado a capturar = ", pszGetInfoDescription(vstGetData[i].wIdentificador),"->" ,
             vstGetData[i].wIdentificador, "\n")
@@ -519,6 +519,11 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
              MainWindow.Loga(d.valor)
              print(d.valor)
              szAux = d.valor
+          
+          if(d.bExit == True): # saiu sem OK pelo close da janela)
+             print('E_PWDAT.PWDAT_TYPED: saiu sem OK pelo close da janela') 
+             myPGWebLib.PW_iPPDisplay('                      ')
+             return -1
 
           ret = myPGWebLib.PW_iAddParam(vstGetData[i].wIdentificador, szAux)
           if(ret != 0 ):
@@ -531,7 +536,8 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
             print("\n%s\n", vstGetData[i].szPrompt)
             MainWindow.Loga('Menu : ')
             MainWindow.Loga(vstGetData[i].szPrompt)
-
+            
+            d = 0
             # Caso só tenha uma opção, escolhe automaticamente
             if( vstGetData[i].bNumOpcoesMenu == 1):
               
@@ -555,6 +561,11 @@ def iExecGetDataInstallJanelas(vstGetData,iNumParam):
             d = DialogMenuClass(MainWindowRoot,listaOpcoes,vstGetData[i].szPrompt)
 
             MainWindowRoot.wait_window(d.top)
+            
+            if(d.bExit == True): # saiu sem OK pelo close da janela)
+               print('E_PWDAT.PWDAT_MENU: saiu sem OK pelo close da janela') 
+               return -1
+
             print(d.valor)
 
             iKey = int(d.valor)
@@ -960,20 +971,45 @@ def execTrans(cod_trans):
   listaParametros = getTransactionResult()
   ret = startTransaction(cod_trans, listaParametros)
 
+  import pdvWindowsPayGoLibC_Python_support
+  MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+  MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
+  
   if (ret != 0):
   
     sError          = ret
     sResultMessage  = getResultMessage();
 
-    # verifica se deu erro de transacao anterior pendente
+    # verifica se tem transacao pendente
     if (ret == E_PWRET.PWRET_FROMHOSTPENDTRN.value):
     
       # confirma a transacao que estava pendente
       print("----------------")
       #print("Erro :" + sError + ": result message :" + sResultMessage + " ao executar a transação: " + operation.ToString());
+       
+      # tratamento da transação pendente 
+      dicionarioConfPend = dict()
+      listaConfPend = []
+      
+      # monta a lista de opções e o dicionário utilizado para mapear a opção selecionada
+      for item in E_PWCNF:
+          print(item.value," -> ",item.name)
+          dicionarioConfPend[item.name] = item.value
+          listaConfPend.append(item.name)
 
+      # chama janela de confirmação 
+      cw = DialogConfirmationWindow(MainWindowRoot,listaConfPend,'Selecione a Opcao de Confirmaçao para a transação que está Pendente:')
+          
+      MainWindowRoot.wait_window(cw.top)
+      print(cw.valor)
+      code_aut = dicionarioConfPend[cw.valor]
+      
+      # faz a confirmação da pendencia
+      ret = confirmPendTransaction(code_aut, getTransactionResult())    
       transactionStatus = E_PWCNF.PWCNF_REV_AUTO_ABORT.value;
-      ret = confirmPendTransaction(transactionStatus, getTransactionResult())
+      
+      #ret = confirmPendTransaction(transactionStatus, getTransactionResult())
+
 
       print("----------------")
 
@@ -1121,7 +1157,21 @@ def confirmUndoTransactionGen(RetTransaction):
       
       if (RetTransaction == E_PWRET.PWRET_FROMHOSTPENDTRN.value):        
           transactionStatus = E_PWCNF.PWCNF_REV_AUTO_ABORT.value
-          ret = confirmPendTransaction(transactionStatus, listTransactionResult)    
+      
+          dicionarioConfPend = dict()
+          listaConfPend = []
+          for item in E_PWCNF:
+              print(item.value," -> ",item.name)
+              dicionarioConfPend[item.name] = item.value
+              listaConfPend.append(item.name)
+
+          cw = DialogConfirmationWindow(MainWindowRoot,listaConfPend,'Selecione a Opcao de Confirmaçao para a transação que está Pendente:')
+          
+          MainWindowRoot.wait_window(cw.top)
+          print(cw.valor)
+          code_aut = dicionarioConfPend[cw.valor]
+          ret = confirmPendTransaction(code_aut, listTransactionResult)    
+      
       #fim if
       else:
           dicionarioConf = dict()
@@ -1131,8 +1181,8 @@ def confirmUndoTransactionGen(RetTransaction):
               dicionarioConf[item.name] = item.value
               listaConf.append(item.name)
 
-          cw = DialogConfirmationWindow(MainWindowRoot,listaConf,'Selecione a Opcao de Confirmaçao:')
-          transactionStatus = E_PWCNF.PWCNF_REV_AUTO_ABORT.value
+          cw = DialogConfirmationWindow(MainWindowRoot,listaConf,'Selecione a Opcao de Confirmaçao')
+          
           MainWindowRoot.wait_window(cw.top)
           print(cw.valor)
           code_aut = dicionarioConf[cw.valor]
@@ -1192,6 +1242,11 @@ def confirmPendTransaction(transactionStatus,transactionResponse):
     pszExtRef    = ''
     pszVirtMerch = ''
     pszAuthSyst  = ''
+
+
+    import pdvWindowsPayGoLibC_Python_support
+    MainWindow  = pdvWindowsPayGoLibC_Python_support.w
+    MainWindowRoot = pdvWindowsPayGoLibC_Python_support.root
     
 
     for item in transactionResponse:
@@ -1213,7 +1268,7 @@ def confirmPendTransaction(transactionStatus,transactionResponse):
           
     #fim do for
 
-    
+    LogaTransactionResult()
     ret = myPGWebLib.PW_iConfirmation(transactionStatus, pszReqNum, pszLocRef, pszLocRef, pszVirtMerch, pszAuthSyst);
     return ret
 #fim de confirmPendTransaction
@@ -1241,6 +1296,11 @@ def CaptureWithPinpad():
   selectUserDataWindow = DialogSelectUserDataWindow(MainWindowRoot,listaCaptura,'Selecione a Opcao de Captura:')
   
   MainWindowRoot.wait_window(selectUserDataWindow.top)
+
+  if(selectUserDataWindow.bExit == True): # janela fechou sem OK
+      print('Não realizou captura')
+      return
+
   print(selectUserDataWindow.valor)
   
   code_captura = dicionarioCaptura[selectUserDataWindow.valor]

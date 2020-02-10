@@ -3,6 +3,7 @@ from  tkinter import *
 
 class DialogDateEntry():
     def __init__(self, master, message,yearPar=2,frame_look={},  **look ):
+        self.bExit = True
         args = dict(relief=SUNKEN, border=1)
         args0 = dict(relief=SUNKEN, border=1)
         args.update(frame_look)
@@ -93,7 +94,8 @@ class DialogDateEntry():
     def get(self):
         return [e.get() for e in self.entries]
 
-    def ok(self):            
+    def ok(self):        
+      self.bExit = False    
       val_list = self.get()  
       print('teste de data:')
       print(val_list)
