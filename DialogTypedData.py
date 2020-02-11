@@ -12,6 +12,7 @@ class DialogTypedData:
 
         self.e = Entry(top,width=70) # entrada de dados
         self.e.pack(padx=5)
+        self.e.focus_set()
 
         self.valor = ""
         b = Button(top, text="OK", command=self.ok)

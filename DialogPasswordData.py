@@ -12,6 +12,7 @@ class DialogPasswordData:
 
         
         self.e = Entry(top,width=70,textvariable=self.password, show ='*') # entrada de dados
+        self.e.focus_set()
         self.e.pack(padx=5)
 
         self.valor = ""
