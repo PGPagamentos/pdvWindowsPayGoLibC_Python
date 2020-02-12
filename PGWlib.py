@@ -52,10 +52,48 @@ def AddMandatoryParamsOld():
 
 ################
 #adiciona os parametros obrigatorios
+
+def readVersionFromFile():
+    # montar  path para o arquivo
+      
+    #busca o diretório onde está o executavel 
+    path = os.path.abspath(os.path.dirname(__file__))
+    
+    path = os.path.join(path, 'version.ini') 
+    
+    print('path do arq versao:' + path)
+    
+    sSaida =''
+    line=''
+    # abrir   o arquivo
+
+    # tenta abrir  arquivo
+    try:
+      fhand = open(path)
+      for line in fhand:
+        if line.startswith('Version'): # busca a versao
+            print(line)
+            sSaida = line.split('=')
+            return sSaida[1] 
+    except OSError as err:
+      print("OS error: {0}".format(err))  
+    
+    return('1.0')
+    # ler a versao
+    # retorna a versao
+
+    # se o arquivo ou a versao nao existir retornar versao padrao 1.0
+
+
+# fim de readVersionFromFile
+
 def addMandatoryParameters(top):
  
+    version = readVersionFromFile()
     addParameter(E_PWINFO.PWINFO_AUTNAME.name, E_PWINFO.PWINFO_AUTNAME.value, "PDVS",top);
-    addParameter(E_PWINFO.PWINFO_AUTVER.name,  E_PWINFO.PWINFO_AUTVER.value, "1.0",top);
+
+    # busca a versao no arquivo version.ini
+    addParameter(E_PWINFO.PWINFO_AUTVER.name,  E_PWINFO.PWINFO_AUTVER.value, version,top);
     addParameter(E_PWINFO.PWINFO_AUTDEV.name,  E_PWINFO.PWINFO_AUTDEV.value, "NTK Solutions Ltda",top);
     addParameter(E_PWINFO.PWINFO_AUTCAP.name,  E_PWINFO.PWINFO_AUTCAP.value, "28",top);  
 
